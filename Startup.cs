@@ -6,10 +6,12 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using PruebaIngresoBibliotecario.Api.Interfaces;
-using PruebaIngresoBibliotecario.Services;
+using Candidates.Interfaces;
+using Candidates.Infrastructure;
+using Candidates.Hubs;
+using Candidates.Services.Queries;
 
-namespace PruebaIngresoBibliotecario.Api
+namespace Candidates.Api
 {
     public class Startup
     {
@@ -28,18 +30,19 @@ namespace PruebaIngresoBibliotecario.Api
 
             services.AddSwaggerDocument();
 
-            services.AddDbContext<Infrastructure.PersistenceContext>(opt =>
+            services.AddDbContext<CandidatesContext>(opt =>
             {
-                opt.UseInMemoryDatabase("PruebaIngreso");
+                opt.UseInMemoryDatabase("Candidates");
             });
 
-            services.AddScoped<IConsultarPrestamoService, ConsultarPrestamoService>();
-            services.AddScoped<ICreacionPrestamoService, CreacionPrestamoService>();
+            services.AddScoped<ICandidateCommandService, CandidateCommandService>();
+            services.AddScoped<ICandidateQueryService, CandidateQueryService>();
            
             services.AddControllers(mvcOpts =>
             {
             });
 
+            services.AddSignalR();
         }
 
 
@@ -57,6 +60,7 @@ namespace PruebaIngresoBibliotecario.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<NotificationHub>("/notificationHub");
             });
 
             app.UseOpenApi();
