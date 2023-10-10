@@ -1,9 +1,11 @@
-﻿using Candidates.Infrastructure;
-using Candidates.Interfaces;
-using Candidates.Models;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
+using Candidates.Models;
+using Candidates.Api.Commands;
+using Microsoft.EntityFrameworkCore;
+using Candidates.Infrastructure;
+using Candidates.Api.Services.Interfaces;
 
 public class CandidateCommandService : ICandidateCommandService
 {
@@ -14,7 +16,7 @@ public class CandidateCommandService : ICandidateCommandService
         _context = context;
     }
 
-    public int AddCandidate(CreateCandidateCommand command)
+    public async Task<int> CreateCandidate(CreateCandidateCommand command)
     {
         var candidate = new Candidate
         {
@@ -22,33 +24,32 @@ public class CandidateCommandService : ICandidateCommandService
             Surname = command.Surname,
             Birthday = command.Birthday,
             Email = command.Email,
-            InsertDate = command.InsertDate,
-            ModifyDate = command.ModifyDate,
+            InsertDate = DateTime.UtcNow, 
+            ModifyDate = DateTime.UtcNow,
             CandidateExperiences = command.CandidateExperiences
         };
 
         _context.Add(candidate);
 
-        int candidateId = candidate.IdCandidate;
-
         if (command.CandidateExperiences != null && command.CandidateExperiences.Any())
         {
             foreach (var experience in command.CandidateExperiences)
             {
-                experience.IdCandidate = candidateId;
+                experience.IdCandidate = candidate.IdCandidate;
                 _context.CandidateExperiences.Add(experience);
             }
-
-            _context.SaveChanges();
         }
+
+        await _context.SaveChangesAsync();
 
         return candidate.IdCandidate;
     }
 
-
-    public void UpdateCandidate(int candidateId, CreateCandidateCommand command)
+    public async Task<int> UpdateCandidate(UpdateCandidateCommand command)
     {
-        var existingCandidate = _context.Candidates.Find(candidateId);
+        var existingCandidate = await _context.Candidates
+            .Include(c => c.CandidateExperiences)
+            .FirstOrDefaultAsync(c => c.IdCandidate == command.IdCandidate);
 
         if (existingCandidate != null)
         {
@@ -56,65 +57,27 @@ public class CandidateCommandService : ICandidateCommandService
             existingCandidate.Surname = command.Surname;
             existingCandidate.Birthday = command.Birthday;
             existingCandidate.Email = command.Email;
-            existingCandidate.InsertDate = command.InsertDate;
-            existingCandidate.ModifyDate = command.ModifyDate;
-
-            var currentExperiences = _context.CandidateExperiences.Where(e => e.IdCandidate == candidateId).ToList();
-
-            var updatedExperiences = new List<CandidateExperience>();
-            var deletedExperiences = new List<CandidateExperience>();
-
-            foreach (var newExperience in command.CandidateExperiences)
-            {
-                var existingExperience = currentExperiences.FirstOrDefault(e => e.IdCandidateExperience == newExperience.IdCandidateExperience);
-
-                if (existingExperience != null)
-                {
-                    existingExperience.Company = newExperience.Company;
-                    existingExperience.Job = newExperience.Job;
-                    existingExperience.Description = newExperience.Description;
-                    existingExperience.Salary = newExperience.Salary;
-                    existingExperience.BeginDate = newExperience.BeginDate;
-                    existingExperience.EndDate = newExperience.EndDate;
-                    existingExperience.ModifyDate = DateTime.UtcNow;
-
-                    updatedExperiences.Add(existingExperience);
-                }
-                else
-                {
-                    newExperience.IdCandidate = candidateId; 
-                    _context.Add(newExperience);
-                }
-            }
-
-            foreach (var currentExperience in currentExperiences)
-            {
-                if (!updatedExperiences.Contains(currentExperience))
-                {
-                    deletedExperiences.Add(currentExperience);
-                }
-            }
-
-            _context.RemoveRange(deletedExperiences);
-
-            _context.SaveChanges();
+            existingCandidate.ModifyDate = DateTime.UtcNow;
+            existingCandidate.CandidateExperiences = command.CandidateExperiences;
+            await _context.SaveChangesAsync();
         }
+
+        return existingCandidate?.IdCandidate ?? 0;
     }
 
-    public void DeleteCandidate(int candidateId)
+    public async Task<int> DeleteCandidate(DeleteCandidateCommand command)
     {
-        var candidate = _context.Candidates.Find(candidateId);
+        var candidate = await _context.Candidates
+            .Include(c => c.CandidateExperiences)
+            .FirstOrDefaultAsync(c => c.IdCandidate == command.IdCandidate);
 
         if (candidate != null)
         {
-            var candidateExperiences = _context.CandidateExperiences.Where(ce => ce.IdCandidate == candidateId);
-            _context.CandidateExperiences.RemoveRange(candidateExperiences);
-
-            _context.Candidates.Remove(candidate);
-
-            _context.SaveChanges();
+            _context.RemoveRange(candidate.CandidateExperiences);
+            _context.Remove(candidate);
+            await _context.SaveChangesAsync();
         }
+
+        return candidate?.IdCandidate ?? 0;
     }
-
-
 }

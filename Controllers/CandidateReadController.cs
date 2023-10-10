@@ -1,10 +1,11 @@
-﻿using Candidates.Interfaces;
-using Candidates.Models;
+﻿using Candidates.Api.Services.Interfaces;
+using Candidates.Api.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Candidates.Api.Controllers
 {
@@ -24,37 +25,10 @@ namespace Candidates.Api.Controllers
             Summary = "Get all candidates",
             Description = "Retrieves a list of all candidates in the system."
         )]
-        public IEnumerable<CandidateViewModel> GetAllCandidates()
+        public async Task<IEnumerable<CandidateViewModel>> GetAllCandidates()
         {
-            var candidates = _candidateQueryService.GetAllCandidates();
-
-            var candidateViewModels = candidates.Select(candidate => new CandidateViewModel
-            {
-                IdCandidate = candidate.IdCandidate,
-                Name = candidate.Name,
-                Surname = candidate.Surname,
-                Birthday = candidate.Birthday,
-                Email = candidate.Email,
-                InsertDate = candidate.InsertDate,
-                ModifyDate = candidate.ModifyDate,
-                CandidateExperiences = candidate.CandidateExperiences
-                    .Select(ce => new CandidateExperienceViewModel
-                    {
-                        IdCandidateExperience = ce.IdCandidateExperience,
-                        Company = ce.Company,
-                        Job = ce.Job,
-                        Description = ce.Description,
-                        Salary = ce.Salary,
-                        BeginDate = ce.BeginDate,
-                        EndDate = ce.EndDate,
-                        InsertDate = ce.InsertDate,
-                        ModifyDate = ce.ModifyDate,
-                        IdCandidate = ce.IdCandidate
-                    })
-                    .ToList()
-            });
-
-            return candidateViewModels.ToList();
+            var candidates = await _candidateQueryService.GetCandidates();
+            return candidates.ToList();
         }
 
         [HttpGet("{id}")]
@@ -64,43 +38,16 @@ namespace Candidates.Api.Controllers
         )]
         [SwaggerResponse(200, "The candidate was found.", typeof(CandidateViewModel))]
         [SwaggerResponse(404, "The candidate with the specified ID was not found.")]
-        public ActionResult<CandidateViewModel> GetCandidateById(int id)
+        public async Task<ActionResult<CandidateViewModel>> GetCandidateById(int id)
         {
-            var candidate = _candidateQueryService.GetCandidateById(id);
+            var candidate = await _candidateQueryService.GetCandidateById(id);
 
             if (candidate == null)
             {
                 return NotFound();
             }
 
-            var viewModel = new CandidateViewModel
-            {
-                IdCandidate = candidate.IdCandidate,
-                Name = candidate.Name,
-                Surname = candidate.Surname,
-                Birthday = candidate.Birthday,
-                Email = candidate.Email,
-                InsertDate = candidate.InsertDate,
-                ModifyDate = candidate.ModifyDate,
-                CandidateExperiences = candidate.CandidateExperiences
-                    .Select(ce => new CandidateExperienceViewModel
-                    {
-                        IdCandidateExperience = ce.IdCandidateExperience,
-                        Company = ce.Company,
-                        Job = ce.Job,
-                        Description = ce.Description,
-                        Salary = ce.Salary,
-                        BeginDate = ce.BeginDate,
-                        EndDate = ce.EndDate,
-                        InsertDate = ce.InsertDate,
-                        ModifyDate = ce.ModifyDate,
-                        IdCandidate = ce.IdCandidate
-                    })
-                    .ToList()
-            };
-
-            return viewModel;
+            return candidate;
         }
-
     }
 }

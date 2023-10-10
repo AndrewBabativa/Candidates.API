@@ -6,10 +6,10 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using Candidates.Interfaces;
 using Candidates.Infrastructure;
-using Candidates.Hubs;
-using Candidates.Services.Queries;
+using AutoMapper;
+using MediatR;
+using Candidates.Api.Services.Interfaces;
 
 namespace Candidates.Api
 {
@@ -27,6 +27,7 @@ namespace Candidates.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMediatR(typeof(Startup));
 
             services.AddSwaggerDocument();
 
@@ -37,14 +38,23 @@ namespace Candidates.Api
 
             services.AddScoped<ICandidateCommandService, CandidateCommandService>();
             services.AddScoped<ICandidateQueryService, CandidateQueryService>();
-           
+            services.AddAutoMapper(typeof(AutoMapperProfiles));
             services.AddControllers(mvcOpts =>
             {
             });
 
             services.AddSignalR();
-        }
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("*")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                });
+            });
+        }
 
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -53,19 +63,17 @@ namespace Candidates.Api
                 app.UseDeveloperExceptionPage();
             }
 
-
             app.UseHttpsRedirection();
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<NotificationHub>("/notificationHub");
             });
-
-            app.UseOpenApi();
-            app.UseSwaggerUi3();
-
         }
     }
 }

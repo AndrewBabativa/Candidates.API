@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Babativa\\Desktop\\AndresBG\\Candidates.Api\\Candidates.Api.csproj": {}
+    "C:\\AndresBG\\Candidates.Api\\Candidates.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Babativa\\Desktop\\AndresBG\\Candidates.Api\\Candidates.Api.csproj": {
+    "C:\\AndresBG\\Candidates.Api\\Candidates.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Babativa\\Desktop\\AndresBG\\Candidates.Api\\Candidates.Api.csproj",
+        "projectUniqueName": "C:\\AndresBG\\Candidates.Api\\Candidates.Api.csproj",
         "projectName": "Candidates.Api",
-        "projectPath": "C:\\Users\\Babativa\\Desktop\\AndresBG\\Candidates.Api\\Candidates.Api.csproj",
-        "packagesPath": "C:\\Users\\Babativa\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Babativa\\Desktop\\AndresBG\\Candidates.Api\\obj\\",
+        "projectPath": "C:\\AndresBG\\Candidates.Api\\Candidates.Api.csproj",
+        "packagesPath": "C:\\Users\\Administrador\\.nuget\\packages\\",
+        "outputPath": "C:\\AndresBG\\Candidates.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Babativa\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Administrador\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,6 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -40,6 +41,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
             "AutoMapper.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[7.0.0, )"
@@ -50,7 +55,7 @@
             },
             "MediatR": {
               "target": "Package",
-              "version": "[12.1.1, )"
+              "version": "[11.1.0, )"
             },
             "MediatR.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
@@ -84,7 +89,7 @@
             },
             "Microsoft.Extensions.DependencyInjection.Abstractions": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[7.0.0, )"
             },
             "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore": {
               "target": "Package",
@@ -166,7 +171,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }

@@ -1,8 +1,10 @@
-﻿using Candidates.Interfaces;
-using Candidates.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using Swashbuckle.AspNetCore.Annotations;
+using Candidates.Api.ViewModels;
+using Candidates.Api.Commands;
+using Candidates.Models;
+using Candidates.Api.Services.Interfaces;
 
 namespace Candidates.Api.Controllers
 {
@@ -19,11 +21,6 @@ namespace Candidates.Api.Controllers
             _candidateQueryService = candidateQueryService ?? throw new ArgumentNullException(nameof(candidateQueryService));
         }
 
-        /// <summary>
-        /// Creates a new candidate.
-        /// </summary>
-        /// <param name="command">The candidate creation request.</param>
-        /// <returns>The newly created candidate.</returns>
         [HttpPost]
         [SwaggerOperation(Summary = "Create a new candidate")]
         [SwaggerResponse(201, "Candidate created successfully", typeof(CandidateViewModel))]
@@ -35,50 +32,49 @@ namespace Candidates.Api.Controllers
                 return BadRequest("Invalid candidate object");
             }
 
-            var createdCandidate =_candidateCommandService.AddCandidate(command);
+            var createdCandidateId = _candidateCommandService.CreateCandidate(command);
 
-            return CreatedAtAction("GetCandidateById", new { id = createdCandidate }, createdCandidate);
+            return NoContent();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         [SwaggerOperation(Summary = "Update an existing candidate")]
         [SwaggerResponse(204, "Candidate updated successfully")]
         [SwaggerResponse(400, "Invalid candidate object")]
         [SwaggerResponse(404, "Candidate not found")]
-        public IActionResult UpdateCandidate(int id, [FromBody] CreateCandidateCommand command)
+        public IActionResult UpdateCandidate([FromBody] UpdateCandidateCommand command)
         {
             if (command == null)
             {
                 return BadRequest("Invalid candidate object");
             }
 
-            // Verificar si el candidato existe antes de intentar actualizarlo
-            var existingCandidate = _candidateQueryService.GetCandidateById(id);
+            var existingCandidate = _candidateQueryService.GetCandidateById(command.IdCandidate);
 
             if (existingCandidate == null)
             {
                 return NotFound("Candidate not found");
             }
 
-            _candidateCommandService.UpdateCandidate(id, command);
+            _candidateCommandService.UpdateCandidate(command);
 
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
         [SwaggerOperation(Summary = "Delete a candidate")]
         [SwaggerResponse(204, "Candidate deleted successfully")]
         [SwaggerResponse(404, "Candidate not found")]
-        public IActionResult DeleteCandidate(int id)
+        public IActionResult DeleteCandidate([FromBody] DeleteCandidateCommand command)
         {
-            var candidate = _candidateQueryService.GetCandidateById(id);
+            var candidate = _candidateQueryService.GetCandidateById(command.IdCandidate);
 
             if (candidate == null)
             {
                 return NotFound("Candidate not found");
             }
 
-            _candidateCommandService.DeleteCandidate(id);
+            _candidateCommandService.DeleteCandidate(command);
 
             return NoContent();
         }

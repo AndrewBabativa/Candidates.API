@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Candidates.Api.ViewModels;
 
 namespace Candidates.Models
 {
@@ -29,7 +30,7 @@ namespace Candidates.Models
         public DateTime InsertDate { get; set; }
         public DateTime ModifyDate { get; set; }
 
-        public virtual ICollection<CandidateExperience> CandidateExperiences { get; set; }
+        public IEnumerable<CandidateExperience> CandidateExperiences { get; set; }
 
     }
 }
